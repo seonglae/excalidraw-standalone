@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Drop-in Excalidraw multi-canvas notebook with local-first storage and optional Convex sync",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

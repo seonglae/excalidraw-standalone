@@ -26,8 +26,8 @@ turn on Convex sync for cross-device drawings.
 ```bash
 git clone https://github.com/seonglae/excalidraw-standalone.git
 cd excalidraw-standalone
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Drawings live in `localStorage` under the key `excalidraw-standalone.drawings.v1`.
@@ -36,21 +36,20 @@ Per-browser, no sync. Open `http://localhost:5174`.
 ### Convex sync mode (cross-device)
 
 ```bash
-npm install
-npx convex dev   # creates a free Convex project, prints VITE_CONVEX_URL
+pnpm install
+pnpm dlx convex dev   # creates a free Convex project, prints VITE_CONVEX_URL
 cp .env.example .env.local
 # paste the VITE_CONVEX_URL into .env.local
-npm run dev
+pnpm dev
 ```
 
 Now the same drawings show up on every browser pointed at the same Convex
-deployment. No auth — one deployment is intended for one user. Run a
-separate Convex deployment per person if you want privacy.
+deployment. Run a separate Convex deployment per person for isolated workspaces.
 
 ## Deploy
 
 ```bash
-npm run build
+pnpm build
 ```
 
 The build is a static SPA. Drop the `dist/` folder on any static host
