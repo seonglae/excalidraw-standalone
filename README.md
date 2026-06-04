@@ -64,8 +64,7 @@ project's environment variables.
 
 ### Access control
 
-Vercel's **Deployment Protection** gates the URL with a single toggle —
-no code change required.
+Vercel **Deployment Protection** gates the URL with a single toggle.
 
 1. Vercel project → **Settings → Deployment Protection**
 2. Choose one:
