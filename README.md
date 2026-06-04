@@ -62,24 +62,19 @@ deep-links survive a page refresh.
 For Vercel deployment with Convex sync, set `VITE_CONVEX_URL` in the
 project's environment variables.
 
-### Protecting a public deployment
+### Access control
 
-There is no in-app auth — anyone with the URL can edit drawings when
-Convex sync mode is on. To gate access without writing auth code, use
-Vercel's built-in **Deployment Protection** (Pro plan, no code change):
+Vercel's **Deployment Protection** gates the URL with a single toggle —
+no code change required.
 
 1. Vercel project → **Settings → Deployment Protection**
-2. Pick one:
-   - **Standard Protection** — only your Vercel team members can view (SSO)
-   - **Password Protection** — a single shared password challenges every visitor
-3. Save. Vercel injects the challenge before any request reaches the app.
+2. Choose one:
+   - **Standard Protection** — Vercel SSO; only your team members get in
+   - **Password Protection** — one shared password challenges every visitor
+3. Save. Vercel handles the challenge before any request hits the app.
 
-On Hobby (free) tier, Deployment Protection covers Preview URLs only,
-not Production. If you need protected production on the free tier,
-either deploy as Preview-only or add a real auth layer (e.g. Clerk).
-
-For a single-user setup with Convex sync, the simplest path is
-**Password Protection** — one shared password, zero code.
+Standard and Password Protection apply to Production on the Pro plan.
+On Hobby they cover Preview URLs.
 
 ## URL scheme
 
