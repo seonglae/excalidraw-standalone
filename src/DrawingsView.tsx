@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useDrawingStore } from "./storage";
-import type { Drawing } from "./storage";
+import type { DrawingSummary } from "./storage";
 
 function relTime(ts: number) {
   const d = Date.now() - ts;
@@ -21,7 +21,7 @@ export function DrawingsView({ onOpen }: { onOpen: (id: string) => void }) {
     onOpen(id);
   };
 
-  const startRename = (d: Drawing) => {
+  const startRename = (d: DrawingSummary) => {
     setRenamingId(d._id);
     setRenameVal(d.title);
   };

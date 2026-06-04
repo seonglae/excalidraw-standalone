@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import type { Drawing, DrawingStore } from "./types";
+import type { Drawing, DrawingStore, DrawingSummary } from "./types";
 
 export function useConvexDrawingStore(): DrawingStore {
   const rows = useQuery(api.drawings.list);
@@ -11,7 +11,7 @@ export function useConvexDrawingStore(): DrawingStore {
   const renameMut = useMutation(api.drawings.rename);
   const removeMut = useMutation(api.drawings.remove);
 
-  const drawings = rows as Drawing[] | undefined;
+  const drawings = rows as DrawingSummary[] | undefined;
 
   const create = useCallback<DrawingStore["create"]>(
     async (title) => {
@@ -42,14 +42,10 @@ export function useConvexDrawingStore(): DrawingStore {
     [removeMut],
   );
 
-  // Mirrors localStorage adapter: undefined while loading, null when missing.
-  const getById = useCallback<DrawingStore["getById"]>(
-    (id) => {
-      if (drawings === undefined) return undefined;
-      return drawings.find((d) => d._id === id) ?? null;
-    },
-    [drawings],
-  );
+  return { drawings, create, update, rename, remove };
+}
 
-  return { drawings, getById, create, update, rename, remove };
+export function useConvexDrawing(id: string): Drawing | null | undefined {
+  const doc = useQuery(api.drawings.getById, { id: id as Id<"drawings"> });
+  return doc as Drawing | null | undefined;
 }

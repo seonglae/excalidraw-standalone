@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Drawing, DrawingStore } from "./types";
+import type { Drawing, DrawingStore, DrawingSummary } from "./types";
 
 const KEY = "excalidraw-standalone.drawings.v1";
+// Same-tab subscribers — the StorageEvent only fires for OTHER tabs, so
+// every write also pings these directly. Module-level set avoids a
+// redundant write-then-read round-trip.
+const subscribers = new Set<() => void>();
 
 function readAll(): Drawing[] {
   try {
@@ -21,23 +25,32 @@ function writeAll(rows: Drawing[]) {
   } catch (err) {
     console.warn("[excalidraw-standalone] localStorage write failed:", err);
   }
+  for (const fn of subscribers) fn();
 }
 
 function makeId() {
-  // Short, sortable-ish id. Not crypto-secure — but drawings are per-browser
-  // here, no global uniqueness requirement.
+  // Use crypto.randomUUID when available; fall back to a short pseudo-random
+  // id for older browsers. Drawings are per-browser so no global uniqueness
+  // requirement.
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
   return `d${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// Cross-tab sync: other tabs see the same drawings list when storage event fires.
 function useLocalDrawings(): Drawing[] {
   const [rows, setRows] = useState<Drawing[]>(() => readAll());
   useEffect(() => {
+    const refresh = () => setRows(readAll());
     const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setRows(readAll());
+      if (e.key === KEY) refresh();
     };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    subscribers.add(refresh);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      subscribers.delete(refresh);
+    };
   }, []);
   return rows;
 }
@@ -55,10 +68,7 @@ export function useLocalDrawingStore(): DrawingStore {
       createdAt: now,
       updatedAt: now,
     };
-    const all = readAll();
-    writeAll([row, ...all]);
-    // Force re-read since storage event only fires for OTHER tabs.
-    window.dispatchEvent(new StorageEvent("storage", { key: KEY }));
+    writeAll([row, ...readAll()]);
     return id;
   }, []);
 
@@ -67,11 +77,10 @@ export function useLocalDrawingStore(): DrawingStore {
     const i = all.findIndex((d) => d._id === id);
     if (i < 0) return;
     all[i] = { ...all[i], ...patch, updatedAt: Date.now() };
-    // Bubble updated row to the top so the list view's recency order matches Convex.
+    // Bubble updated row to the top so list-view recency order matches Convex.
     const [row] = all.splice(i, 1);
     all.unshift(row);
     writeAll(all);
-    window.dispatchEvent(new StorageEvent("storage", { key: KEY }));
   }, []);
 
   const rename = useCallback<DrawingStore["rename"]>(async (id, title) => {
@@ -80,21 +89,20 @@ export function useLocalDrawingStore(): DrawingStore {
     if (i < 0) return;
     all[i] = { ...all[i], title, updatedAt: Date.now() };
     writeAll(all);
-    window.dispatchEvent(new StorageEvent("storage", { key: KEY }));
   }, []);
 
   const remove = useCallback<DrawingStore["remove"]>(async (id) => {
     writeAll(readAll().filter((d) => d._id !== id));
-    window.dispatchEvent(new StorageEvent("storage", { key: KEY }));
   }, []);
 
-  const getById = useCallback<DrawingStore["getById"]>(
-    (id) => {
-      const row = drawings.find((d) => d._id === id);
-      return row ?? null;
-    },
-    [drawings],
-  );
+  // List view doesn't need the heavy elements blob — return summaries only,
+  // matching the Convex adapter's shape.
+  const summaries: DrawingSummary[] = drawings.map(({ elements: _e, appState: _a, ...rest }) => rest);
 
-  return { drawings, getById, create, update, rename, remove };
+  return { drawings: summaries, create, update, rename, remove };
+}
+
+export function useLocalDrawing(id: string): Drawing | null | undefined {
+  const all = useLocalDrawings();
+  return all.find((d) => d._id === id) ?? null;
 }

@@ -2,15 +2,22 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { ArrowLeft } from "lucide-react";
-import { useDrawingStore } from "./storage";
+import { useDrawing, useDrawingStore } from "./storage";
 import "@excalidraw/excalidraw/index.css";
 
+// Thumbnail debounce is longer than the elements debounce: a fresh PNG
+// re-render is ~10× the size of the elements diff and the list-view
+// thumbnail tolerates a few seconds of staleness without surprise.
+const ELEMENTS_DEBOUNCE_MS = 500;
+const THUMBNAIL_INTERVAL_MS = 5000;
+
 export function DrawingEditor({ id, onBack }: { id: string; onBack: () => void }) {
-  const { getById, update } = useDrawingStore();
-  const drawing = getById(id);
+  const { update } = useDrawingStore();
+  const drawing = useDrawing(id);
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef("");
+  const lastThumbAtRef = useRef(0);
 
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -27,22 +34,30 @@ export function DrawingEditor({ id, onBack }: { id: string; onBack: () => void }
         scrollX: appState.scrollX,
         scrollY: appState.scrollY,
       });
+      // Thumbnail re-rendered at most once per THUMBNAIL_INTERVAL_MS — a
+      // PNG export plus its dataURL roughly 20× the elements payload, so
+      // gating it independently of element saves keeps bandwidth bounded
+      // during rapid drawing.
       let thumb: string | undefined;
-      try {
-        const blob = await exportToBlob({
-          elements,
-          appState: { ...appState, exportWithDarkMode: false },
-          maxWidthOrHeight: 320,
-          files: excalidrawAPI.getFiles(),
-        });
-        thumb = await new Promise<string>((res) => {
-          const r = new FileReader();
-          r.onload = () => res(r.result as string);
-          r.readAsDataURL(blob);
-        });
-      } catch {}
+      const now = Date.now();
+      if (now - lastThumbAtRef.current >= THUMBNAIL_INTERVAL_MS) {
+        try {
+          const blob = await exportToBlob({
+            elements,
+            appState: { ...appState, exportWithDarkMode: false },
+            maxWidthOrHeight: 320,
+            files: excalidrawAPI.getFiles(),
+          });
+          thumb = await new Promise<string>((res) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result as string);
+            r.readAsDataURL(blob);
+          });
+          lastThumbAtRef.current = now;
+        } catch {}
+      }
       await update(id, { elements: elemStr, appState: stateSubset, thumbnail: thumb });
-    }, 500);
+    }, ELEMENTS_DEBOUNCE_MS);
   }, [excalidrawAPI, id, update]);
 
   useEffect(() => {

@@ -1,22 +1,23 @@
-// Backend-agnostic shape used by the UI. Both the localStorage adapter and
-// the Convex adapter expose a hook returning this same interface, so the
-// UI doesn't care which one is wired up at build time.
+// Backend-agnostic shapes. The list view never needs the heavy elements
+// blob, so it consumes the lightweight summary. The editor pulls the full
+// drawing on demand via useDrawing(id).
 
-export interface Drawing {
+export interface DrawingSummary {
   _id: string;
   title: string;
-  elements: string; // JSON-stringified excalidraw scene elements
-  appState?: string; // JSON-stringified subset of excalidraw appState
-  thumbnail?: string; // data:image/png base64
+  thumbnail?: string;
   createdAt: number;
   updatedAt: number;
 }
 
+export interface Drawing extends DrawingSummary {
+  elements: string; // JSON-stringified excalidraw scene elements
+  appState?: string; // JSON-stringified subset of excalidraw appState
+}
+
 export interface DrawingStore {
   // undefined while loading (Convex hooks return undefined initially).
-  drawings: Drawing[] | undefined;
-  // For the editor — undefined while loading, null when not found.
-  getById: (id: string) => Drawing | null | undefined;
+  drawings: DrawingSummary[] | undefined;
   create: (title?: string) => Promise<string>;
   update: (
     id: string,
