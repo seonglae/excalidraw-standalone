@@ -95,7 +95,7 @@ export function DrawingEditor({ id, onBack }: { id: string; onBack: () => void }
     <div className="fixed inset-0 z-50 bg-white">
       <button
         onClick={onBack}
-        className="absolute top-[16px] left-16 z-[60] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 rounded shadow-sm border border-gray-200 text-gray-500 hover:text-gray-800 transition-colors"
+        className="absolute top-[16px] left-16 z-[60] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-gray-200 text-gray-500 hover:text-gray-800 transition-colors"
       >
         <ArrowLeft size={14} />
         <span className="text-xs">{drawing?.title ?? "Back"}</span>

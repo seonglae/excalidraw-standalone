@@ -42,7 +42,7 @@ export function DrawingsView({ onOpen }: { onOpen: (id: string) => void }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <button
           onClick={handleCreate}
-          className="aspect-[4/3] border-2 border-dashed border-rule hover:border-ink-3 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors group"
+          className="aspect-[4/3] border-2 border-dashed border-rule hover:border-ink-3 rounded-2xl flex flex-col items-center justify-center gap-2 transition-colors group"
         >
           <Plus size={24} className="text-ink-4 group-hover:text-ink-2" />
           <span className="mono text-[10px] uppercase tracking-wider text-ink-4 group-hover:text-ink-2">
@@ -52,7 +52,7 @@ export function DrawingsView({ onOpen }: { onOpen: (id: string) => void }) {
         {drawings.map((d) => (
           <div
             key={d._id}
-            className="aspect-[4/3] border border-rule hover:border-ink-3 rounded-lg overflow-hidden flex flex-col cursor-pointer transition-colors group relative"
+            className="aspect-[4/3] border border-rule hover:border-ink-3 rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-colors group relative"
             onClick={() => onOpen(d._id)}
           >
             {d.thumbnail ? (
@@ -87,7 +87,7 @@ export function DrawingsView({ onOpen }: { onOpen: (id: string) => void }) {
                   e.stopPropagation();
                   startRename(d);
                 }}
-                className="p-1 bg-paper/80 text-ink-4 hover:text-ink-2 rounded"
+                className="p-1.5 bg-ink/80 text-paper hover:bg-ink rounded-full backdrop-blur-sm"
                 title="Rename"
               >
                 <Pencil size={10} />
@@ -97,7 +97,7 @@ export function DrawingsView({ onOpen }: { onOpen: (id: string) => void }) {
                   e.stopPropagation();
                   remove(d._id);
                 }}
-                className="p-1 bg-paper/80 text-ink-4 hover:text-rust rounded"
+                className="p-1.5 bg-ink/80 text-paper hover:bg-rust rounded-full backdrop-blur-sm"
                 title="Delete"
               >
                 <Trash2 size={10} />
