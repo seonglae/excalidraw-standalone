@@ -13,6 +13,7 @@
     "convex:dev": "convex dev"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
     "@excalidraw/excalidraw": "^0.18.1",
     "convex": "^1.32.0",
     "lucide-react": "^0.563.0",

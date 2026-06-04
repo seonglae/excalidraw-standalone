@@ -3,6 +3,7 @@ import { DrawingsView } from "./DrawingsView";
 import { DrawingEditor } from "./DrawingEditor";
 import { ThemeToggle } from "./ThemeToggle";
 import { USE_CONVEX } from "./storage";
+import { UserMenu, USE_CLERK } from "./UserMenu";
 
 // ?d=<id> opens the editor. No id = list view. Same URL scheme as the
 // parent project, kept short on purpose.
@@ -43,9 +44,13 @@ export default function App() {
           <h1 className="font-mono text-lg text-ink">Excalidraw</h1>
           <p className="mono text-[10px] text-ink-3 uppercase tracking-wider mt-0.5">
             {USE_CONVEX ? "convex sync" : "local-only"}
+            {USE_CLERK && " · signed in"}
           </p>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          {USE_CLERK && <UserMenu />}
+          <ThemeToggle />
+        </div>
       </header>
       <DrawingsView onOpen={setActiveId} />
     </div>
