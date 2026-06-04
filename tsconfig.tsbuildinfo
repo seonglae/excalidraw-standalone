@@ -1,1 +1,0 @@
-{"root":["./src/app.tsx","./src/drawingeditor.tsx","./src/drawingsview.tsx","./src/themetoggle.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/storage/convex.ts","./src/storage/index.ts","./src/storage/local.ts","./src/storage/types.ts","./vite.config.ts"],"version":"5.9.3"}

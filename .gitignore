@@ -8,3 +8,4 @@ dist
 # Convex generated client is committed (so local-only mode builds without
 # running `convex dev`). `convex dev` regenerates these in place.
 .convex/
+tsconfig.tsbuildinfo
