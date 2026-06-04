@@ -63,7 +63,9 @@ project's environment variables.
 
 ### Access control
 
-Vercel **Deployment Protection** gates the URL with a single toggle.
+Two paths, pick whichever fits.
+
+**Vercel Deployment Protection** — gates the URL with a single toggle.
 
 1. Vercel project → **Settings → Deployment Protection**
 2. Choose one:
@@ -73,6 +75,25 @@ Vercel **Deployment Protection** gates the URL with a single toggle.
 
 Standard and Password Protection apply to Production on the Pro plan.
 On Hobby they cover Preview URLs.
+
+**Clerk sign-in (per-user drawings)** — enables a real auth layer with
+each user's drawings scoped to them on Convex.
+
+1. Create a Clerk project at https://clerk.com. In Clerk dashboard
+   → **JWT Templates → New → Convex** (the template name must be `convex`).
+2. Set the frontend env var:
+   ```bash
+   echo "VITE_CLERK_PUBLISHABLE_KEY=pk_live_..." >> .env.local
+   ```
+3. Tell the Convex deployment about Clerk:
+   ```bash
+   pnpm dlx convex env set CLERK_ISSUER_URL https://your-app.clerk.accounts.dev
+   ```
+4. `pnpm dev` — the app shows a sign-in screen, and Convex scopes every
+   drawing by `ownerId = <Clerk user>`.
+
+Leaving either env var blank keeps that layer off. With both env vars set
+and Convex configured, anonymous requests are rejected.
 
 ## URL scheme
 
