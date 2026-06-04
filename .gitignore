@@ -9,3 +9,4 @@ dist
 # running `convex dev`). `convex dev` regenerates these in place.
 .convex/
 tsconfig.tsbuildinfo
+.vercel

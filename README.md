@@ -4,6 +4,8 @@ A single-page Excalidraw notebook with a multi-drawing list view and
 auto-save. Runs entirely in the browser by default; flip one env var to
 turn on Convex sync for cross-device drawings.
 
+**Live demo: https://excalidraw-standalone.vercel.app**
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fseonglae%2Fexcalidraw-standalone) [![Set up Convex](https://img.shields.io/badge/Set_up_Convex-141414?style=for-the-badge&logo=convex&logoColor=white)](https://docs.convex.dev/quickstart/react)
 
 ![editor](./docs/screenshot-editor.png)
