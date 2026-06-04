@@ -14,7 +14,5 @@ export default defineSchema({
     ownerId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_updatedAt", ["updatedAt"])
-    .index("by_owner_updatedAt", ["ownerId", "updatedAt"]),
+  }).index("by_owner_updatedAt", ["ownerId", "updatedAt"]),
 });

@@ -4,11 +4,8 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ClerkProvider, SignedIn, SignedOut, SignIn, useAuth } from "@clerk/clerk-react";
 import App from "./App";
-import { CONVEX_URL, USE_CONVEX } from "./storage";
+import { CLERK_PUBLISHABLE_KEY, CONVEX_URL, USE_CLERK, USE_CONVEX } from "./storage";
 import "./index.css";
-
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-const USE_CLERK = Boolean(CLERK_PUBLISHABLE_KEY);
 
 // Restore theme preference before first paint so the page doesn't flash.
 (() => {
@@ -19,7 +16,9 @@ const USE_CLERK = Boolean(CLERK_PUBLISHABLE_KEY);
   document.documentElement.classList.toggle("dark", dark);
 })();
 
-const root = createRoot(document.getElementById("root")!);
+const rootEl = document.getElementById("root");
+if (!rootEl) throw new Error("Missing #root element in index.html");
+const root = createRoot(rootEl);
 
 function SignInGate() {
   return (

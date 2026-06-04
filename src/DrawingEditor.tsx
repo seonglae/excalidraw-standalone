@@ -21,42 +21,50 @@ export function DrawingEditor({ id, onBack }: { id: string; onBack: () => void }
 
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      if (!excalidrawAPI) return;
-      const elements = excalidrawAPI.getSceneElements();
-      const appState = excalidrawAPI.getAppState();
-      const elemStr = JSON.stringify(elements);
-      if (elemStr === lastSavedRef.current) return;
-      lastSavedRef.current = elemStr;
-      const stateSubset = JSON.stringify({
-        viewBackgroundColor: appState.viewBackgroundColor,
-        zoom: appState.zoom,
-        scrollX: appState.scrollX,
-        scrollY: appState.scrollY,
-      });
-      // Thumbnail re-rendered at most once per THUMBNAIL_INTERVAL_MS — a
-      // PNG export plus its dataURL roughly 20× the elements payload, so
-      // gating it independently of element saves keeps bandwidth bounded
-      // during rapid drawing.
-      let thumb: string | undefined;
-      const now = Date.now();
-      if (now - lastThumbAtRef.current >= THUMBNAIL_INTERVAL_MS) {
+    saveTimer.current = setTimeout(() => {
+      void (async () => {
         try {
-          const blob = await exportToBlob({
-            elements,
-            appState: { ...appState, exportWithDarkMode: false },
-            maxWidthOrHeight: 320,
-            files: excalidrawAPI.getFiles(),
+          if (!excalidrawAPI) return;
+          const elements = excalidrawAPI.getSceneElements();
+          const appState = excalidrawAPI.getAppState();
+          const elemStr = JSON.stringify(elements);
+          if (elemStr === lastSavedRef.current) return;
+          lastSavedRef.current = elemStr;
+          const stateSubset = JSON.stringify({
+            viewBackgroundColor: appState.viewBackgroundColor,
+            zoom: appState.zoom,
+            scrollX: appState.scrollX,
+            scrollY: appState.scrollY,
           });
-          thumb = await new Promise<string>((res) => {
-            const r = new FileReader();
-            r.onload = () => res(r.result as string);
-            r.readAsDataURL(blob);
-          });
-          lastThumbAtRef.current = now;
-        } catch {}
-      }
-      await update(id, { elements: elemStr, appState: stateSubset, thumbnail: thumb });
+          // Thumbnail re-rendered at most once per THUMBNAIL_INTERVAL_MS — a
+          // PNG export plus its dataURL is roughly 20× the elements payload,
+          // so gating it independently of element saves keeps bandwidth
+          // bounded during rapid drawing.
+          let thumb: string | undefined;
+          const now = Date.now();
+          if (now - lastThumbAtRef.current >= THUMBNAIL_INTERVAL_MS) {
+            try {
+              const blob = await exportToBlob({
+                elements,
+                appState: { ...appState, exportWithDarkMode: false },
+                maxWidthOrHeight: 320,
+                files: excalidrawAPI.getFiles(),
+              });
+              thumb = await new Promise<string | undefined>((res) => {
+                const r = new FileReader();
+                r.onload = () => res(typeof r.result === "string" ? r.result : undefined);
+                r.readAsDataURL(blob);
+              });
+              lastThumbAtRef.current = now;
+            } catch (err) {
+              console.warn("[drawing thumbnail] export failed:", err);
+            }
+          }
+          await update(id, { elements: elemStr, appState: stateSubset, thumbnail: thumb });
+        } catch (err) {
+          console.error("[drawing save] failed:", err);
+        }
+      })();
     }, ELEMENTS_DEBOUNCE_MS);
   }, [excalidrawAPI, id, update]);
 
@@ -113,7 +121,7 @@ export function DrawingEditor({ id, onBack }: { id: string; onBack: () => void }
         className="absolute top-[16px] left-16 z-[60] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-sm border border-gray-200 text-gray-500 hover:text-gray-800 transition-colors"
       >
         <ArrowLeft size={14} />
-        <span className="text-xs">{drawing?.title ?? "Back"}</span>
+        <span className="text-xs">{drawing.title}</span>
       </button>
       <div className="w-full h-full">
         <Excalidraw

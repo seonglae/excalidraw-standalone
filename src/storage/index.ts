@@ -7,8 +7,10 @@ import { useConvexDrawing, useConvexDrawingStore } from "./convex";
 import { useLocalDrawing, useLocalDrawingStore } from "./local";
 import type { DrawingStore } from "./types";
 
-export const CONVEX_URL = import.meta.env.VITE_CONVEX_URL as string | undefined;
+export const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
 export const USE_CONVEX = Boolean(CONVEX_URL);
+export const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+export const USE_CLERK = Boolean(CLERK_PUBLISHABLE_KEY);
 
 export const useDrawingStore: () => DrawingStore = USE_CONVEX
   ? useConvexDrawingStore

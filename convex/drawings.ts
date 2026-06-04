@@ -57,7 +57,6 @@ export const list = query({
           .collect();
     return rows.map((r) => ({
       _id: r._id,
-      _creationTime: r._creationTime,
       title: r.title,
       thumbnail: r.thumbnail,
       createdAt: r.createdAt,
@@ -72,7 +71,18 @@ export const getById = query({
     const row = await ctx.db.get(args.id);
     if (!row) return null;
     await assertOwnership(ctx, row.ownerId);
-    return row;
+    // Drop ownerId from the wire payload — it's an auth-only field, never
+    // needed by the editor. Other fields (including _creationTime) are
+    // also stripped so the response matches the Drawing type exactly.
+    return {
+      _id: row._id,
+      title: row.title,
+      elements: row.elements,
+      appState: row.appState,
+      thumbnail: row.thumbnail,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
   },
 });
 

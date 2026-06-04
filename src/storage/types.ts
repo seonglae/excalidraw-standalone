@@ -2,20 +2,20 @@
 // blob, so it consumes the lightweight summary. The editor pulls the full
 // drawing on demand via useDrawing(id).
 
-export interface DrawingSummary {
+export type DrawingSummary = {
   _id: string;
   title: string;
   thumbnail?: string;
   createdAt: number;
   updatedAt: number;
-}
+};
 
-export interface Drawing extends DrawingSummary {
+export type Drawing = DrawingSummary & {
   elements: string; // JSON-stringified excalidraw scene elements
   appState?: string; // JSON-stringified subset of excalidraw appState
-}
+};
 
-export interface DrawingStore {
+export type DrawingStore = {
   // undefined while loading (Convex hooks return undefined initially).
   drawings: DrawingSummary[] | undefined;
   create: (title?: string) => Promise<string>;
@@ -25,4 +25,4 @@ export interface DrawingStore {
   ) => Promise<void>;
   rename: (id: string, title: string) => Promise<void>;
   remove: (id: string) => Promise<void>;
-}
+};

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { DrawingsView } from "./DrawingsView";
 import { DrawingEditor } from "./DrawingEditor";
 import { ThemeToggle } from "./ThemeToggle";
-import { USE_CONVEX } from "./storage";
-import { UserMenu, USE_CLERK } from "./UserMenu";
+import { USE_CLERK, USE_CONVEX } from "./storage";
+import { UserMenu } from "./UserMenu";
 
 // ?d=<id> opens the editor. No id = list view. Same URL scheme as the
 // parent project, kept short on purpose.
